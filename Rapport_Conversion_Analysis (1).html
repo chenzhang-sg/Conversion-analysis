@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapport — Conversion Analysis</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: #F7F6F2;
+    color: #2C2C2A;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container { max-width: 860px; margin: 0 auto; }
+
+  .header { margin-bottom: 1.75rem; }
+  .header h1 { font-size: 22px; font-weight: 600; color: #2C2C2A; margin-bottom: 4px; }
+  .header p { font-size: 13px; color: #888780; }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .metric {
+    background: #fff;
+    border-radius: 8px;
+    border: 0.5px solid #E0DED8;
+    padding: 14px 16px;
+  }
+  .metric-label { font-size: 12px; color: #888780; margin-bottom: 4px; }
+  .metric-value { font-size: 24px; font-weight: 600; }
+  .metric-sub { font-size: 11px; color: #B4B2A9; margin-top: 3px; }
+
+  .note {
+    font-size: 12px;
+    color: #888780;
+    background: #fff;
+    border-left: 2px solid #B5D4F4;
+    padding: 8px 12px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888780;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 1.5rem 0 10px;
+  }
+
+  .chart-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 0.5px solid #E0DED8;
+    padding: 1.25rem 1.25rem 1rem;
+    margin-bottom: 12px;
+  }
+  .chart-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #5F5E5A;
+    margin-bottom: 12px;
+  }
+  .chart-wrap { position: relative; width: 100%; height: 180px; }
+
+  .table-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 0.5px solid #E0DED8;
+    overflow: hidden;
+    margin-top: 1.5rem;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #F5F4F0; }
+  th {
+    padding: 10px 12px;
+    text-align: right;
+    font-weight: 500;
+    font-size: 12px;
+    color: #888780;
+    border-bottom: 0.5px solid #E0DED8;
+  }
+  th:first-child { text-align: left; }
+  td { padding: 9px 12px; text-align: right; color: #2C2C2A; border-bottom: 0.5px solid #F1EFE8; }
+  td:first-child { text-align: left; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #FAFAF8; }
+
+  .green { color: #1D9E75; font-weight: 500; }
+  .purple { color: #7F77DD; font-weight: 500; }
+  .muted { color: #B4B2A9; }
+
+  .footer {
+    margin-top: 2rem;
+    font-size: 11px;
+    color: #B4B2A9;
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 1rem; }
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Rapport — Conversion Analysis</h1>
+    <p>Oct 2025 – May 2026 &nbsp;·&nbsp; Heriot-Watt University students excluded (57 removed from Jan 12) &nbsp;·&nbsp; May is a partial month</p>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric">
+      <div class="metric-label">Avg monthly visitors</div>
+      <div class="metric-value" style="color:#2C2C2A">2,313</div>
+      <div class="metric-sub">Oct '25 – May '26</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Trial signups (total)</div>
+      <div class="metric-value" style="color:#1D9E75">569</div>
+      <div class="metric-sub">Avg rate 2.9%</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Demo bookings (total)</div>
+      <div class="metric-value" style="color:#7F77DD">22</div>
+      <div class="metric-sub">Nov '25 – May '26</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Best demo month</div>
+      <div class="metric-value" style="color:#2C2C2A">9</div>
+      <div class="metric-sub">Feb '26</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>Jan '26 note:</strong> 57 Heriot-Watt University students removed — all signed up on Jan 12, likely a class exercise. Adjusted Jan count: 161 → 104 signups (5.0% rate). The Feb traffic spike (4,506 visitors) did not produce a proportional lift in conversions, suggesting lower-intent traffic that month.
+  </div>
+
+  <div class="section-label">Charts</div>
+
+  <div class="chart-card">
+    <div class="chart-title">Website visitors by month</div>
+    <div class="chart-wrap">
+      <canvas id="visitorsChart" role="img" aria-label="Monthly website visitors Oct 2025 to May 2026">Visitors ranged from 1,586 in Dec to 4,506 in Feb.</canvas>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Trial signup rate by month (%)</div>
+    <div class="chart-wrap">
+      <canvas id="trialChart" role="img" aria-label="Monthly trial signup conversion rate Oct 2025 to May 2026">Rates ranged from 1.7% in May to 5.0% in January.</canvas>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title">Demo bookings by month (count)</div>
+    <div class="chart-wrap">
+      <canvas id="demoChart" role="img" aria-label="Monthly demo bookings Oct 2025 to May 2026">Demo bookings ranged from 0 in Oct and Jan to 9 in Feb.</canvas>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Visitors</th>
+          <th>Trials #</th>
+          <th>Trial rate</th>
+          <th>Demo #</th>
+          <th>Demo rate</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">Rapport · Generated May 2026 · Confidential</div>
+
+</div>
+
+<script>
+const months   = ["Oct '25","Nov '25","Dec '25","Jan '26","Feb '26","Mar '26","Apr '26","May '26*"];
+const visitors = [2347, 2548, 1586, 2071, 4506, 2423, 2055, 2689];
+const trials   = [59, 77, 66, 104, 76, 72, 70, 45];
+const demos    = [0, 2, 3, 0, 9, 4, 2, 2];
+const trialRates = trials.map((t,i) => +(t/visitors[i]*100).toFixed(1));
+const demoRates  = demos.map((d,i) => +(d/visitors[i]*100).toFixed(2));
+
+const gridColor = 'rgba(0,0,0,0.06)';
+const textColor = '#888780';
+
+const sharedX = {
+  ticks: { color: textColor, font: { size: 11 }, autoSkip: false, maxRotation: 0 },
+  grid: { color: gridColor },
+  border: { color: '#E0DED8' }
+};
+const sharedY = (cb) => ({
+  ticks: { color: textColor, font: { size: 11 }, callback: cb },
+  grid: { color: gridColor },
+  border: { color: 'transparent' },
+  min: 0
+});
+
+new Chart(document.getElementById('visitorsChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      data: visitors,
+      backgroundColor: '#B5D4F4',
+      borderWidth: 0,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: {
+      callbacks: { label: ctx => ' ' + ctx.parsed.y.toLocaleString() + ' visitors' }
+    }},
+    scales: { x: sharedX, y: sharedY(v => v >= 1000 ? (v/1000).toFixed(1)+'k' : v) }
+  }
+});
+
+new Chart(document.getElementById('trialChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{
+      data: trialRates,
+      borderColor: '#1D9E75',
+      backgroundColor: 'rgba(29,158,117,0.08)',
+      pointBackgroundColor: '#1D9E75',
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      fill: true, tension: 0.35, borderWidth: 2,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: {
+      callbacks: { label: ctx => ' ' + ctx.parsed.y.toFixed(1) + '% trial rate' }
+    }},
+    scales: { x: sharedX, y: sharedY(v => v + '%') }
+  }
+});
+
+new Chart(document.getElementById('demoChart'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [{
+      data: demos,
+      backgroundColor: '#CECBF6',
+      borderWidth: 0,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: {
+      callbacks: { label: ctx => ' ' + ctx.parsed.y + ' demo bookings' }
+    }},
+    scales: { x: sharedX, y: { ...sharedY(v => v), ticks: { ...sharedY(v=>v).ticks, stepSize: 1 } } }
+  }
+});
+
+const tbody = document.getElementById('tableBody');
+months.forEach((m, i) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${m}</td>
+    <td>${visitors[i].toLocaleString()}</td>
+    <td>${trials[i]}</td>
+    <td class="green">${trialRates[i].toFixed(1)}%</td>
+    <td class="purple">${demos[i]}</td>
+    <td class="muted">${demoRates[i].toFixed(2)}%</td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+</body>
+</html>
